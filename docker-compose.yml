@@ -1,0 +1,57 @@
+# Alias de docker-compose-portainer.yml (develop).
+
+version: "3.8"
+
+services:
+  petshop-front:
+    image: petshop-front:${IMAGE_TAG:-latest}
+
+    hostname: petshop-front
+
+    networks:
+      - network_aw
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    deploy:
+      mode: replicated
+      replicas: 1
+
+      placement:
+        constraints:
+          - node.role == manager
+
+      update_config:
+        order: start-first
+        delay: 5s
+        failure_action: rollback
+
+      restart_policy:
+        condition: any
+
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 512M
+        reservations:
+          cpus: "0.10"
+          memory: 128M
+
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=network_aw
+
+        - traefik.http.routers.petshop-front.rule=Host(`${TRAEFIK_FRONT_HOST:-petshop-front.aw.api.br}`)
+        - traefik.http.routers.petshop-front.entrypoints=websecure
+        - traefik.http.routers.petshop-front.tls=true
+        - traefik.http.routers.petshop-front.tls.certresolver=letsencryptresolver
+
+        - traefik.http.services.petshop-front.loadbalancer.server.port=3000
+
+networks:
+  network_aw:
+    external: true
