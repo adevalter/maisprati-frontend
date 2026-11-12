@@ -6,11 +6,6 @@ import { useState } from "react";
 import { apiRequest } from "@/lib/api";
 import { redirectForRole, saveSession } from "@/lib/auth";
 
-const DEMO_ACCOUNTS = [
-  { label: "Dono", email: "dono@petshop.local", password: "dono123" },
-  { label: "Atendente", email: "atendente@petshop.local", password: "atendente123" },
-];
-
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -34,12 +29,6 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
-  }
-
-  function fillDemo(account) {
-    setEmail(account.email);
-    setPassword(account.password);
-    setError("");
   }
 
   return (
@@ -90,11 +79,11 @@ export default function LoginPage() {
         </form>
 
         <p className="mt-6 text-center text-sm text-[var(--muted)]">
-          <Link href="/" className="font-medium text-[var(--accent)] hover:underline ">
+          <Link href="/" className="font-medium text-[var(--accent)] hover:underline">
             Voltar ao início
           </Link>
         </p>
       </div>
     </main>
-  )
+  );
 }
