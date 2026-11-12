@@ -5,21 +5,6 @@ import { useEffect } from "react";
 import { getToken, getUser, redirectForRole } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 
-const DEMO_ACCOUNTS = [
-  {
-    role: "Dono",
-    email: "dono@petshop.local",
-    password: "dono123",
-    note: "equipe, catálogo e contas a pagar",
-  },
-  {
-    role: "Atendente",
-    email: "atendente@petshop.local",
-    password: "atendente123",
-    note: "agenda, tutores, pets e contas a receber",
-  },
-];
-
 export default function LandingPage() {
   const router = useRouter();
 
@@ -55,33 +40,6 @@ export default function LandingPage() {
           </Link>
         </div>
       </header>
-
-      <section className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-8">
-        <h2 className="text-xl font-semibold">Contas de demonstração</h2>
-        <p className="mt-2 text-sm text-[var(--muted)]">
-          Mesmas contas seed do backend (`application.yml`).
-        </p>
-        <ul className="mt-4 space-y-3 text-sm">
-          {DEMO_ACCOUNTS.map((account) => (
-            <li
-              key={account.email}
-              className="rounded-lg border border-[var(--border)] px-4 py-3"
-            >
-              <p className="font-medium text-[var(--foreground)]">{account.role}</p>
-              <p className="mt-1 text-[var(--muted)]">
-                {account.email} / {account.password}
-              </p>
-              <p className="mt-1 text-[var(--muted)]">{account.note}</p>
-            </li>
-          ))}
-        </ul>
-        <Link
-          href="/login"
-          className="mt-6 inline-flex rounded-lg bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[var(--accent-hover)]"
-        >
-          Ir para o login
-        </Link>
-      </section>
     </main>
   );
 }
