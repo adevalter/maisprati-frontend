@@ -16,6 +16,56 @@ const emptyForm = {
   notes: "",
 };
 
+function onlyNumbers(value) {
+  return value.replace(/\D/g, "");
+}
+
+function formatPhone(value) {
+  const digits = onlyNumbers(value).slice(0, 11);
+
+  if (digits.length <= 2) {
+    return digits ? `(${digits}` : "";
+  }
+
+  const ddd = digits.slice(0, 2);
+  const number = digits.slice(2);
+
+  if (digits.length <= 10) {
+    if (number.length <= 4) {
+      return `(${ddd}) ${number}`;
+    }
+
+    return `(${ddd}) ${number.slice(0, 4)}-${number.slice(4)}`;
+  }
+
+  return `(${ddd}) ${number.slice(0, 5)}-${number.slice(5)}`;
+}
+
+function formatDocument(value) {
+  const digits = onlyNumbers(value).slice(0, 14);
+
+  if (digits.length <= 11) {
+    if (digits.length <= 3) return digits;
+
+    if (digits.length <= 6) {
+      return `${digits.slice(0, 3)}.${digits.slice(3)}`;
+    }
+
+    if (digits.length <= 9) {
+      return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
+    }
+
+    return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
+  }
+
+  if (digits.length <= 2) {return digits};
+  if (digits.length <= 5) {return `${digits.slice(0, 2)}.${digits.slice(2)}`};
+  if (digits.length <= 8) {return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5)}`};
+  if (digits.length <= 12) {return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8)}`};
+
+  return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8, 12)}-${digits.slice(12)}`;
+}
+
 export default function NewClientPage() {
   const router = useRouter();
   const [form, setForm] = useState(emptyForm);
@@ -31,14 +81,52 @@ export default function NewClientPage() {
     }
   }, [router]);
 
+const LIMITE_CARACTERES = 80
+
+// Formatação do e-mail
+function formatEmail(value) {
+  return value
+    .toLowerCase()
+    .replace(/\s+/g, "")
+    .slice(0, LIMITE_CARACTERES);
+}
+
+// Validação do formato do e-mail
+function validarEmail(email) {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return regex.test(email);
+}
+
   function updateField(field, value) {
-    setForm((prev) => ({ ...prev, [field]: value }));
+    let formattedValue = value
+
+    if(field === "mobile" || field === "phone") {
+      formattedValue = formatPhone(value)
+    }
+
+    if(field === "document") {
+      formattedValue = formatDocument(value)
+    }
+
+    if(field === "email") {
+      formattedValue = formatEmail(value)
+    }
+
+    setForm((prev) => ({ ...prev, [field]: formattedValue }));
   }
 
   async function handleSubmit(event) {
     event.preventDefault();
+
     setError("");
+
+    if(form.email && !validarEmail(form.email)) {
+      setError("Informe um endereço de e-mail válido.");
+      return;
+  }
+
     setLoading(true);
+
     try {
       const created = await apiRequest("/api/clients", {
         method: "POST",
@@ -68,8 +156,8 @@ export default function NewClientPage() {
       >
         <Field label="Nome *" value={form.name} onChange={(v) => updateField("name", v)} required />
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Celular" value={form.mobile} onChange={(v) => updateField("mobile", v)} />
-          <Field label="Telefone" value={form.phone} onChange={(v) => updateField("phone", v)} />
+          <Field label="Celular" value={form.mobile} onChange={(v) => updateField("mobile", v)} inputMode="numeric" maxLength={15} />
+          <Field label="Telefone" value={form.phone} onChange={(v) => updateField("phone", v)} inputMode="numeric" maxLength={15}/>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field
@@ -82,6 +170,8 @@ export default function NewClientPage() {
             label="CPF/CNPJ"
             value={form.document}
             onChange={(v) => updateField("document", v)}
+            inputMode="numeric"
+            maxLength={18}
           />
         </div>
         <Field

@@ -89,33 +89,12 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="mt-6 rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-3">
-          <p className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
-            Demo
-          </p>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {DEMO_ACCOUNTS.map((account) => (
-              <button
-                key={account.email}
-                type="button"
-                onClick={() => fillDemo(account)}
-                className="rounded-lg border border-[var(--border)] bg-white px-3 py-1.5 text-xs font-medium hover:bg-black/5"
-              >
-                {account.label}
-              </button>
-            ))}
-          </div>
-          <p className="mt-2 text-xs text-[var(--muted)]">
-            dono@petshop.local / dono123 · atendente@petshop.local / atendente123
-          </p>
-        </div>
-
         <p className="mt-6 text-center text-sm text-[var(--muted)]">
-          <Link href="/" className="font-medium text-[var(--accent)] hover:underline">
+          <Link href="/" className="font-medium text-[var(--accent)] hover:underline ">
             Voltar ao início
           </Link>
         </p>
       </div>
     </main>
-  );
+  )
 }
