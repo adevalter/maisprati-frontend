@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { apiRequest } from "@/lib/api";
+import { apiRequest, downloadAuthenticatedFile } from "@/lib/api";
 import { getToken, getUser } from "@/lib/auth";
 
 function speciesLabel(value) {
@@ -23,6 +23,7 @@ export default function PetHubPage() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [downloadingCertificate, setDownloadingCertificate] = useState(false);
 
   useEffect(() => {
     const token = getToken();
@@ -109,6 +110,21 @@ export default function PetHubPage() {
     }
   }
 
+  async function handleBirthCertificate() {
+    setError("");
+    setDownloadingCertificate(true);
+    try {
+      await downloadAuthenticatedFile(`/api/pets/${id}/birth-certificate`, {
+        token: getToken(),
+        fallbackFilename: `certidao-${pet?.name || "pet"}-${id}.pdf`,
+      });
+    } catch (err) {
+      setError(err.message || "Não foi possível gerar a certidão");
+    } finally {
+      setDownloadingCertificate(false);
+    }
+  }
+
   if (loading || !form || !pet) {
     return (
       <main className="flex flex-1 items-center justify-center p-8 text-[var(--muted)]">
@@ -135,13 +151,23 @@ export default function PetHubPage() {
             </Link>
           </p>
         </div>
-        <button
-          type="button"
-          onClick={handleDelete}
-          className="rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-[var(--danger)]"
-        >
-          Excluir
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={handleBirthCertificate}
+            disabled={downloadingCertificate}
+            className="rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-sm font-medium hover:bg-black/5 disabled:opacity-60"
+          >
+            {downloadingCertificate ? "Gerando..." : "Certidão de nascimento"}
+          </button>
+          <button
+            type="button"
+            onClick={handleDelete}
+            className="rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-[var(--danger)]"
+          >
+            Excluir
+          </button>
+        </div>
       </header>
 
       <section className="grid gap-3 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 sm:grid-cols-3">
